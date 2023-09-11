@@ -275,3 +275,5 @@ float* 로 return 하면
      -> 출처: https://docs.opencv.org/4.x/d4/d94/tutorial_camera_calibration.html
 
   3) opecv 프로젝트에 적용
+
+  4) 이제 소스도 옮겨놓고 했으니 ffi plugin 형태로 분석하고 구성하자(예정)
