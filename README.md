@@ -273,3 +273,5 @@ float* 로 return 하면
 
   2) opencv camera calibration
      -> 출처: https://docs.opencv.org/4.x/d4/d94/tutorial_camera_calibration.html
+
+  3) opecv 프로젝트에 적용

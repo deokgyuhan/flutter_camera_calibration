@@ -25,4 +25,13 @@ A new Flutter FFI plugin project.
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
+
+  s.xcconfig = {
+      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
+      'OTHER_LDFLAGS' => '-framework opencv2 -all_load'
+  }
+  # flutter_camera_calibration
+  s.dependency              'OpenCV', '4.7.0'
+  s.library               = 'c++'
+  s.static_framework      = true
 end
