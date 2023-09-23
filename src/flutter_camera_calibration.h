@@ -7,7 +7,7 @@ extern "C"
 
     const char *opencvVersion();
 
-    Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+    struct Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[]);
 
 #ifdef __cplusplus
 }

@@ -9,10 +9,12 @@ set_target_properties(lib_opencv PROPERTIES IMPORTED_LOCATION ${CMAKE_CURRENT_SO
 add_library(
     flutter_camera_calibration
     SHARED
-    flutter_camera_calibration.cpp
+    flutter_camera_calibration.c
 )
 
 set (BUILD_WRITERS ON)
 
-find_library(log-lib log)
-target_link_libraries(flutter_camera_calibration lib_opencv ${log-lib})
+# find_library(log-lib log)
+# target_link_libraries(flutter_camera_calibration lib_opencv ${log-lib})
+
+target_link_libraries(flutter_camera_calibration lib_opencv)

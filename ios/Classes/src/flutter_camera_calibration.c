@@ -565,8 +565,8 @@ extern "C"
         return CV_VERSION;
     }
 
-FUNCTION_ATTRIBUTE
-    Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+ FUNCTION_ATTRIBUTE
+    struct Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
     {
     cout << "argc: " << argc << endl;
     cout << "argv: " << argv[1] << endl;

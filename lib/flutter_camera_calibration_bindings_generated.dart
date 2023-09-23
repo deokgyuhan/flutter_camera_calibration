@@ -26,44 +26,48 @@ class FlutterCameraCalibrationBindings {
           lookup)
       : _lookup = lookup;
 
-  /// A very short-lived native function.
-  ///
-  /// For very short-lived functions, it is fine to call them on the main isolate.
-  /// They will block the Dart execution while running the native function, so
-  /// only do this for native functions which are guaranteed to be short-lived.
-  int sum(
-    int a,
-    int b,
+  ffi.Pointer<ffi.Char> opencvVersion() {
+    return _opencvVersion();
+  }
+
+  late final _opencvVersionPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Char> Function()>>(
+          'opencvVersion');
+  late final _opencvVersion =
+      _opencvVersionPtr.asFunction<ffi.Pointer<ffi.Char> Function()>();
+
+  ffi.Pointer<Camera_Info> camera_calibrate(
+    int argc,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> argv,
+    ffi.Pointer<ffi.Pointer<ffi.Char>> filelist,
   ) {
-    return _sum(
-      a,
-      b,
+    return _camera_calibrate(
+      argc,
+      argv,
+      filelist,
     );
   }
 
-  late final _sumPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum');
-  late final _sum = _sumPtr.asFunction<int Function(int, int)>();
+  late final _camera_calibratePtr = _lookup<
+      ffi.NativeFunction<
+          ffi.Pointer<Camera_Info> Function(
+              ffi.Int,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>,
+              ffi.Pointer<ffi.Pointer<ffi.Char>>)>>('camera_calibrate');
+  late final _camera_calibrate = _camera_calibratePtr.asFunction<
+      ffi.Pointer<Camera_Info> Function(int, ffi.Pointer<ffi.Pointer<ffi.Char>>,
+          ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
+}
 
-  /// A longer lived native function, which occupies the thread calling it.
-  ///
-  /// Do not call these kind of native functions in the main isolate. They will
-  /// block Dart execution. This will cause dropped frames in Flutter applications.
-  /// Instead, call these native functions on a separate isolate.
-  int sum_long_running(
-    int a,
-    int b,
-  ) {
-    return _sum_long_running(
-      a,
-      b,
-    );
-  }
+class Camera_Info extends ffi.Struct {
+  @ffi.Int()
+  external int rows;
 
-  late final _sum_long_runningPtr =
-      _lookup<ffi.NativeFunction<ffi.IntPtr Function(ffi.IntPtr, ffi.IntPtr)>>(
-          'sum_long_running');
-  late final _sum_long_running =
-      _sum_long_runningPtr.asFunction<int Function(int, int)>();
+  @ffi.Int()
+  external int cols;
+
+  @ffi.Int()
+  external int length;
+
+  external ffi.Pointer<ffi.Float> array;
 }
