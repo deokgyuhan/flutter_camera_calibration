@@ -18,6 +18,8 @@
 using namespace cv;
 using namespace std;
 
+extern "C"
+{
 class Settings
 {
 public:
@@ -557,16 +559,14 @@ bool runCalibrationAndSave(Settings& s, cv::Size imageSize, Mat& cameraMatrix, M
     return ok;
 }
 
-extern "C"
-{
  FUNCTION_ATTRIBUTE
-    const char *opencvVersion()
+    const char* opencvVersion()
     {
         return CV_VERSION;
     }
 
 FUNCTION_ATTRIBUTE
-    struct Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+    Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
     {
     cout << "argc: " << argc << endl;
     cout << "argv: " << argv[1] << endl;
@@ -916,7 +916,7 @@ for (int i = 0; i < numFiles; i++) {
       }
     }
 
-   IPhone_Camera_Info* result = new IPhone_Camera_Info;
+   Camera_Info* result = new Camera_Info;
    result->rows = mat.rows;
    result->cols = mat.cols;
    result->length = size;
