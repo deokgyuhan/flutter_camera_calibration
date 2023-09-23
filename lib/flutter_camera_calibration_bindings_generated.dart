@@ -59,7 +59,7 @@ class FlutterCameraCalibrationBindings {
           ffi.Pointer<ffi.Pointer<ffi.Char>>)>();
 }
 
-class Camera_Info extends ffi.Struct {
+final class Camera_Info extends ffi.Struct {
   @ffi.Int()
   external int rows;
 
