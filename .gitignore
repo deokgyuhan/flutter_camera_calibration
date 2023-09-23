@@ -28,3 +28,7 @@ migrate_working_dir/
 .dart_tool/
 .packages
 build/
+/download/
+/src/include/
+/android/src/main/jniLibs/
+/ios/opencv2.framework/
