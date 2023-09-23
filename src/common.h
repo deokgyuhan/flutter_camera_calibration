@@ -1,11 +1,11 @@
-#ifndef IPHONE_CAMERA_INFO_DEFINED
-#define IPHONE_CAMERA_INFO_DEFINED
+#ifndef CAMERA_INFO_DEFINED
+#define CAMERA_INFO_DEFINED
 
-struct IPhone_Camera_Info {
+struct Camera_Info {
     int rows;
     int cols;
     int length;
     float* array;
 };
 
-#endif // IPHONE_CAMERA_INFO_DEFINED
+#endif // CAMERA_INFO_DEFINED

@@ -277,3 +277,6 @@ float* 로 return 하면
   3) opecv 프로젝트에 적용
 
   4) 이제 소스도 옮겨놓고 했으니 ffi plugin 형태로 분석하고 구성하자(예정)
+
+## 2023.09.23
+* 프로젝트 구성 및 라이브러리 cmake 구성 참조: https://github.com/khoren93/flutter_camera_processing

@@ -26,12 +26,21 @@ A new Flutter FFI plugin project.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
   s.swift_version = '5.0'
 
+  # telling CocoaPods not to remove framework
+    s.preserve_paths = 'opencv2.framework'
+
+  # telling linker to include opencv2 framework
   s.xcconfig = {
-      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
-      'OTHER_LDFLAGS' => '-framework opencv2 -all_load'
+     'OTHER_LDFLAGS' => '-framework opencv2',
+     'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
   }
+
+  # including OpenCV framework
+  s.vendored_frameworks = 'opencv2.framework'
+
   # flutter_camera_calibration
-  s.dependency              'OpenCV', '4.7.0'
   s.library               = 'c++'
-  s.static_framework      = true
+
+  # module_map is needed so this module can be used as a framework
+  s.module_map = 'flutter_camera_calibration.modulemap'
 end
