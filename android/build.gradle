@@ -4,7 +4,7 @@ group 'com.novice.flutter_camera_calibration'
 version '1.0'
 
 buildscript {
-    ext.kotlin_version = '1.8.21'
+    ext.kotlin_version = '1.7.10'
     repositories {
         google()
         mavenCentral()

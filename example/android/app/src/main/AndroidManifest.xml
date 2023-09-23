@@ -1,4 +1,8 @@
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <uses-sdk tools:overrideLibrary="dev.flutter.integration_test, com.novice.flutter_camera_calibration" />
+
     <application
         android:label="flutter_camera_calibration_example"
         android:usesCleartextTraffic="true"
