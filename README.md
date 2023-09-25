@@ -284,4 +284,5 @@ float* 로 return 하면
 ## 2023.09.25
 * The argument type 'Pointer<Pointer<Utf8>>' can't be assigned to the parameter type 'Pointer<Pointer<Char>>'.
  => https://stackoverflow.com/questions/72879925/flutter-external-dll-and-pointerchar-vs-pointerutf8
+* 플러그인 프로토타입 완료 => 예제 완료 => 기기 테스트중
 

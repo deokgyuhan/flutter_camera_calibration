@@ -24,11 +24,10 @@ final FlutterCameraCalibrationBindings _bindings = FlutterCameraCalibrationBindi
 
 String opencvVersion() => _bindings.opencvVersion().cast<Utf8>().toDartString();
 
-Future<CameraInfoResult> camera_calibrate(List<String> imagepath) async {
-  String full_path = "";
+Future<CameraInfoResult> camera_calibrate(String filePath, List<String> images) async {
   final List<Pointer<Utf8>> imagePaths = [];
 
-    for (final path in imagepath) {
+    for (final path in images) {
       final imagePath = path.toNativeUtf8() ?? "none".toNativeUtf8();
      // print("-----------"+imagePath.toString());
       imagePaths.add(imagePath);
@@ -44,7 +43,7 @@ Future<CameraInfoResult> camera_calibrate(List<String> imagepath) async {
 
   final arguments = <Pointer<Char>>[
     "main".toNativeUtf8().cast<Char>(),
-    full_path.toNativeUtf8().cast<Char>()
+    filePath.toNativeUtf8().cast<Char>()
   ];
 
   // Allocate memory for the argument pointers
