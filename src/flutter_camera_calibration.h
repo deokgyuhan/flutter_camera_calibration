@@ -1,6 +1,7 @@
 #ifdef __cplusplus
 
 #include "common.h"
+#include "camera_info.h"
 
 extern "C"
 {

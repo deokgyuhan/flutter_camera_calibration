@@ -1,4 +1,3 @@
-
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32)
 #define IS_WIN32
 #endif
@@ -18,15 +17,3 @@
 // Marking a function for export
 #define FUNCTION_ATTRIBUTE __declspec(dllexport)
 #endif
-
-#ifndef CAMERA_INFO_DEFINED
-#define CAMERA_INFO_DEFINED
-
-struct Camera_Info {
-    int rows;
-    int cols;
-    int length;
-    float* array;
-};
-
-#endif // CAMERA_INFO_DEFINED

@@ -38,9 +38,9 @@ PODS:
     - Flutter
   - image_picker_ios (0.0.1):
     - Flutter
-  - SDWebImage (5.17.0):
-    - SDWebImage/Core (= 5.17.0)
-  - SDWebImage/Core (5.17.0)
+  - SDWebImage (5.18.2):
+    - SDWebImage/Core (= 5.18.2)
+  - SDWebImage/Core (5.18.2)
   - SwiftyGif (5.4.4)
 
 DEPENDENCIES:
@@ -73,7 +73,7 @@ SPEC CHECKSUMS:
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_camera_calibration: b87d2ab9994e54c7499f7034af05e872e55c3c2f
   image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
-  SDWebImage: 750adf017a315a280c60fde706ab1e552a3ae4e9
+  SDWebImage: c0de394d7cf7f9838aed1fd6bb6037654a4572e4
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
 
 PODFILE CHECKSUM: 6b9eb94e9f98a329f2ef624b852a6e42d090af2b

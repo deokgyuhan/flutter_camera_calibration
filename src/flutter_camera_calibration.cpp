@@ -13,13 +13,13 @@
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
 #include <opencv2/objdetect/charuco_detector.hpp>
+
 #include "common.h"
+#include "camera_info.h"
 
 using namespace cv;
 using namespace std;
 
-extern "C"
-{
 class Settings
 {
 public:
@@ -559,6 +559,8 @@ bool runCalibrationAndSave(Settings& s, cv::Size imageSize, Mat& cameraMatrix, M
     return ok;
 }
 
+extern "C"
+{
  FUNCTION_ATTRIBUTE
     const char* opencvVersion()
     {

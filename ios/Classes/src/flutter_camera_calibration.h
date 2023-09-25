@@ -1,13 +1,15 @@
-#include "common.h"
-
 #ifdef __cplusplus
+
+#include "common.h"
+#include "camera_info.h"
+
 extern "C"
 {
 #endif
 
     const char *opencvVersion();
 
-    struct Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+    const Camera_Info *camera_calibrate(int argc, char* argv[], char* filelist[]);
 
 #ifdef __cplusplus
 }
