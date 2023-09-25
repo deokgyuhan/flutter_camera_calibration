@@ -280,3 +280,8 @@ float* 로 return 하면
 
 ## 2023.09.23
 * 프로젝트 구성 및 라이브러리 cmake 구성 참조: https://github.com/khoren93/flutter_camera_processing
+
+## 2023.09.25
+* The argument type 'Pointer<Pointer<Utf8>>' can't be assigned to the parameter type 'Pointer<Pointer<Char>>'.
+ => https://stackoverflow.com/questions/72879925/flutter-external-dll-and-pointerchar-vs-pointerutf8
+
