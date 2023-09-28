@@ -15,7 +15,7 @@
 #include <opencv2/objdetect/charuco_detector.hpp>
 
 #include "common.h"
-#include "camera_info.h"
+/*#include "camera_info.h"*/
 
 using namespace cv;
 using namespace std;
@@ -568,7 +568,7 @@ extern "C"
     }
 
     FUNCTION_ATTRIBUTE
-    const Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+    const Camera_InfoPtr camera_calibrate(int argc, char* argv[], char* filelist[])
     {
     cout << "argc: " << argc << endl;
     cout << "argv: " << argv[1] << endl;

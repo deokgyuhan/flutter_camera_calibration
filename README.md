@@ -286,3 +286,17 @@ float* 로 return 하면
  => https://stackoverflow.com/questions/72879925/flutter-external-dll-and-pointerchar-vs-pointerutf8
 * 플러그인 프로토타입 완료 => 예제 완료 => 기기 테스트중
 => ios linker error => 내일부터 디버깅.
+
+## 2023.09.27
+* 디버깅 1번째 ios linker error -> 해결 못함.
+
+## 2023.09.28
+* 디버깅 2번째 ios linker error
+  struct Camera_Info {
+  int rows;
+  int cols;
+  int length;
+  float* array;
+  }; 구조체 문제...
+
+* 디버깅 3번째 테스트만 벌써 1시간째 이런게 힘들지. 오늘은 여기까지.

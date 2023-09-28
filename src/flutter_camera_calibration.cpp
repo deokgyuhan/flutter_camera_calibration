@@ -568,7 +568,7 @@ extern "C"
     }
 
 FUNCTION_ATTRIBUTE
-    Camera_Info* camera_calibrate(int argc, char* argv[], char* filelist[])
+    const Camera_InfoPtr camera_calibrate(int argc, char* argv[], char* filelist[])
     {
     cout << "argc: " << argc << endl;
     cout << "argv: " << argv[1] << endl;

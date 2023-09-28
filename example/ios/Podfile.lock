@@ -36,8 +36,6 @@ PODS:
   - Flutter (1.0.0)
   - flutter_camera_calibration (0.0.1):
     - Flutter
-  - image_picker_ios (0.0.1):
-    - Flutter
   - SDWebImage (5.18.2):
     - SDWebImage/Core (= 5.18.2)
   - SDWebImage/Core (5.18.2)
@@ -47,7 +45,6 @@ DEPENDENCIES:
   - file_picker (from `.symlinks/plugins/file_picker/ios`)
   - Flutter (from `Flutter`)
   - flutter_camera_calibration (from `.symlinks/plugins/flutter_camera_calibration/ios`)
-  - image_picker_ios (from `.symlinks/plugins/image_picker_ios/ios`)
 
 SPEC REPOS:
   trunk:
@@ -63,8 +60,6 @@ EXTERNAL SOURCES:
     :path: Flutter
   flutter_camera_calibration:
     :path: ".symlinks/plugins/flutter_camera_calibration/ios"
-  image_picker_ios:
-    :path: ".symlinks/plugins/image_picker_ios/ios"
 
 SPEC CHECKSUMS:
   DKImagePickerController: b512c28220a2b8ac7419f21c491fc8534b7601ac
@@ -72,7 +67,6 @@ SPEC CHECKSUMS:
   file_picker: ce3938a0df3cc1ef404671531facef740d03f920
   Flutter: f04841e97a9d0b0a8025694d0796dd46242b2854
   flutter_camera_calibration: b87d2ab9994e54c7499f7034af05e872e55c3c2f
-  image_picker_ios: 4a8aadfbb6dc30ad5141a2ce3832af9214a705b5
   SDWebImage: c0de394d7cf7f9838aed1fd6bb6037654a4572e4
   SwiftyGif: 93a1cc87bf3a51916001cf8f3d63835fb64c819f
 

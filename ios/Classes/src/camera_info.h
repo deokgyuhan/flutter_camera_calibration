@@ -8,4 +8,5 @@ struct Camera_Info {
     float* array;
 };
 
+typedef Camera_Info* Camera_InfoPtr;
 #endif // CAMERA_INFO_DEFINED
