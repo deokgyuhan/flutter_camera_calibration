@@ -74,7 +74,7 @@ class _MyAppState extends State<MyApp> {
                     if(images != null) {
                       for (final image in images) {
                         final imagePath = image?.path ?? "none";
-                        // print("-----------"+imagePath.toString());
+                        print("-----------"+imagePath.toString());
                         imagePaths.add(imagePath);
                       }
                     }

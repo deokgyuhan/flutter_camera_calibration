@@ -3,6 +3,9 @@
 
     <uses-sdk tools:overrideLibrary="dev.flutter.integration_test, com.novice.flutter_camera_calibration" />
 
+    <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
     <application
         android:label="flutter_camera_calibration_example"
         android:usesCleartextTraffic="true"
