@@ -300,3 +300,55 @@ float* 로 return 하면
   }; 구조체 문제...
 
 * 디버깅 3번째 테스트만 벌써 1시간째 이런게 힘들지. 오늘은 여기까지.
+
+## 2023.09.29
+* 오늘은 반대로 안드로이드에서 디버깅 시도-> 일단, 안드로이드에서는 디버깅 성공.
+* 다시 IOS에서 디버깅 시도 -> 성공
+* #
+# To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
+# Run `pod lib lint flutter_camera_calibration.podspec` to validate before publishing.
+#
+Pod::Spec.new do |s|
+s.name             = 'flutter_camera_calibration'
+s.version          = '0.0.1'
+s.summary          = 'A new Flutter FFI plugin project.'
+s.description      = <<-DESC
+
+A new Flutter FFI plugin project.
+DESC
+s.homepage         = 'http://example.com'
+s.license          = { :file => '../LICENSE' }
+s.author           = { 'Your Company' => 'email@example.com' }
+
+# This will ensure the source files in Classes/ are included in the native
+# builds of apps using this FFI plugin. Podspec does not support relative
+# paths, so Classes contains a forwarder C file that relatively imports
+# `../src/*` so that the C sources can be shared among all target platforms.
+s.source           = { :path => '.' }
+s.source_files = 'Classes/**/*'
+s.dependency 'Flutter'
+s.platform = :ios, '12.0'
+
+# Flutter.framework does not contain a i386 slice.
+s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
+s.swift_version = '5.0'
+
+# telling CocoaPods not to remove framework
+    s.preserve_paths = 'opencv2.framework'
+
+# telling linker to include opencv2 framework
+s.xcconfig = {
+'OTHER_LDFLAGS' => '-framework opencv2 -all_load',  // 이 부분에서 -all_load 추가해서 성공
+'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
+}
+
+# including OpenCV framework
+s.vendored_frameworks = 'opencv2.framework'
+
+# flutter_camera_calibration
+s.library               = 'c++'
+
+# module_map is needed so this module can be used as a framework
+s.module_map = 'flutter_camera_calibration.modulemap'
+end
+

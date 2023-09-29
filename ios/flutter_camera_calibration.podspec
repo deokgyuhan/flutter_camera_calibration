@@ -7,6 +7,7 @@ Pod::Spec.new do |s|
   s.version          = '0.0.1'
   s.summary          = 'A new Flutter FFI plugin project.'
   s.description      = <<-DESC
+
 A new Flutter FFI plugin project.
                        DESC
   s.homepage         = 'http://example.com'
@@ -20,7 +21,7 @@ A new Flutter FFI plugin project.
   s.source           = { :path => '.' }
   s.source_files = 'Classes/**/*'
   s.dependency 'Flutter'
-  s.platform = :ios, '11.0'
+  s.platform = :ios, '12.0'
 
   # Flutter.framework does not contain a i386 slice.
   s.pod_target_xcconfig = { 'DEFINES_MODULE' => 'YES', 'EXCLUDED_ARCHS[sdk=iphonesimulator*]' => 'i386' }
@@ -31,7 +32,7 @@ A new Flutter FFI plugin project.
 
   # telling linker to include opencv2 framework
   s.xcconfig = {
-     'OTHER_LDFLAGS' => '-framework opencv2',
+     'OTHER_LDFLAGS' => '-framework opencv2 -all_load',
      'CLANG_CXX_LANGUAGE_STANDARD' => 'c++20',
   }
 
