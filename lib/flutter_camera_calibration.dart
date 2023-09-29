@@ -89,3 +89,44 @@ class CameraInfoResult {
 
   CameraInfoResult(this.rows, this.cols, this.length, this.array);
 }
+
+class CameraIntrincMatrix {
+  final int rows;
+  final int cols;
+  final List<double> array;
+
+  CameraIntrincMatrix(this.rows, this.cols, this.array) {
+    if (array.length != rows * cols) {
+      throw ArgumentError('Array length must match rows * cols');
+    }
+  }
+
+  double get(int row, int col) {
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+      throw ArgumentError('Invalid row or column index');
+    }
+    return array[row * cols + col];
+  }
+
+  void set(int row, int col, double value) {
+    if (row < 0 || row >= rows || col < 0 || col >= cols) {
+      throw ArgumentError('Invalid row or column index');
+    }
+    array[row * cols + col] = value;
+  }
+
+  @override
+  String toString() {
+    final columnWidth = 12; // 각 열의 고정된 너비
+
+    StringBuffer buffer = StringBuffer();
+    for (int i = 0; i < rows; i++) {
+      for (int j = 0; j < cols; j++) {
+        final value = get(i, j).toStringAsFixed(2); // 소수점 두 자리까지 표시
+        buffer.write(value.padLeft(columnWidth)); // 오른쪽 정렬 및 너비 설정
+      }
+      buffer.writeln(); // 행마다 개행 문자 추가
+    }
+    return buffer.toString();
+  }
+}

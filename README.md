@@ -1,95 +1,5 @@
 # flutter_camera_calibration
 
-A new Flutter FFI plugin project.
-
-## Getting Started
-
-This project is a starting point for a Flutter
-[FFI plugin](https://docs.flutter.dev/development/platform-integration/c-interop),
-a specialized package that includes native code directly invoked with Dart FFI.
-
-## Project structure
-
-This template uses the following structure:
-
-* `src`: Contains the native source code, and a CmakeFile.txt file for building
-  that source code into a dynamic library.
-
-* `lib`: Contains the Dart code that defines the API of the plugin, and which
-  calls into the native code using `dart:ffi`.
-
-* platform folders (`android`, `ios`, `windows`, etc.): Contains the build files
-  for building and bundling the native code library with the platform application.
-
-## Building and bundling native code
-
-The `pubspec.yaml` specifies FFI plugins as follows:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        ffiPlugin: true
-```
-
-This configuration invokes the native build for the various target platforms
-and bundles the binaries in Flutter applications using these FFI plugins.
-
-This can be combined with dartPluginClass, such as when FFI is used for the
-implementation of one platform in a federated plugin:
-
-```yaml
-  plugin:
-    implements: some_other_plugin
-    platforms:
-      some_platform:
-        dartPluginClass: SomeClass
-        ffiPlugin: true
-```
-
-A plugin can have both FFI and method channels:
-
-```yaml
-  plugin:
-    platforms:
-      some_platform:
-        pluginClass: SomeName
-        ffiPlugin: true
-```
-
-The native build systems that are invoked by FFI (and method channel) plugins are:
-
-* For Android: Gradle, which invokes the Android NDK for native builds.
-  * See the documentation in android/build.gradle.
-* For iOS and MacOS: Xcode, via CocoaPods.
-  * See the documentation in ios/flutter_camera_calibration.podspec.
-  * See the documentation in macos/flutter_camera_calibration.podspec.
-* For Linux and Windows: CMake.
-  * See the documentation in linux/CMakeLists.txt.
-  * See the documentation in windows/CMakeLists.txt.
-
-## Binding to native code
-
-To use the native code, bindings in Dart are needed.
-To avoid writing these by hand, they are generated from the header file
-(`src/flutter_camera_calibration.h`) by `package:ffigen`.
-Regenerate the bindings by running `flutter pub run ffigen --config ffigen.yaml`.
-
-## Invoking native code
-
-Very short-running native functions can be directly invoked from any isolate.
-For example, see `sum` in `lib/flutter_camera_calibration.dart`.
-
-Longer-running functions should be invoked on a helper isolate to avoid
-dropping frames in Flutter applications.
-For example, see `sumAsync` in `lib/flutter_camera_calibration.dart`.
-
-## Flutter help
-
-For help getting started with Flutter, view our
-[online documentation](https://flutter.dev/docs), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
-
 # - 작업일지 - 
 
 ## 2023.06.21
@@ -291,13 +201,15 @@ float* 로 return 하면
 * 디버깅 1번째 ios linker error -> 해결 못함.
 
 ## 2023.09.28
-* 디버깅 2번째 ios linker error
+* 디버깅 2번째 ios linker error -> 아래 구조체의 문제인가 ? => 결론은 아님.
+ ```
   struct Camera_Info {
   int rows;
   int cols;
   int length;
   float* array;
-  }; 구조체 문제...
+  };
+```
 
 * 디버깅 3번째 테스트만 벌써 1시간째 이런게 힘들지. 오늘은 여기까지.
 
@@ -354,4 +266,18 @@ s.module_map = 'flutter_camera_calibration.modulemap'
 end
  ```
 
-* 이 플러그인 작업하고 초기 버전만 배포하고 당분간은 dart언어하고 flutter + 파이어베이스로 프로젝트하는것에 집중하자. 
+* 디버깅 결과 (카메라 Intrinc Parameter)
+=> reference:  https://docs.opencv.org/4.x/d4/d94/tutorial_camera_calibration.html
+
+ ```
+I/flutter (32524): ---------------------------------------->rows: 3
+I/flutter (32524): ---------------------------------------->cols: 3
+I/flutter (32524): ---------------------------------------->length: 9
+I/flutter (32524):       540.18        0.00      319.50
+I/flutter (32524):         0.00      540.18      239.50
+I/flutter (32524):         0.00        0.00        1.00
+ ```
+
+* example 작성 완료. 카메라 캘리브레이션 이후 결과를 화면에 행렬로 팝업창으로 표시..
+* 내일 README 작성후 pub.dev에 초기 버전 배포하자.
+* 블로그에 작업일지 이동
