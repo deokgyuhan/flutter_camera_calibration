@@ -2,6 +2,7 @@ import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_camera_calibration/flutter_camera_calibration.dart' as flutter_camera_calibration;
 import 'package:image_picker/image_picker.dart';
+import 'package:multiple_images_picker/multiple_images_picker.dart';
 
 void main() {
   runApp(const MyApp());
@@ -68,12 +69,23 @@ class _MyAppState extends State<MyApp> {
                       // User canceled the picker
                     }
 
-                    final List<XFile>? images = await _picker.pickMultiImage();
+                    // final List<XFile>? images = await _picker.pickMultiImage();
+                    // final List<String> imagePaths = [];
+
+                    // if(images != null) {
+                    //   for (final image in images) {
+                    //     final imagePath = image?.path ?? "none";
+                    //     print("-----------"+imagePath.toString());
+                    //     imagePaths.add(imagePath);
+                    //   }
+                    // }
                     final List<String> imagePaths = [];
+
+                    await loadAssets();
 
                     if(images != null) {
                       for (final image in images) {
-                        final imagePath = image?.path ?? "none";
+                        final imagePath = image?.identifier ?? "none";
                         print("-----------"+imagePath.toString());
                         imagePaths.add(imagePath);
                       }
@@ -95,5 +107,40 @@ class _MyAppState extends State<MyApp> {
         ),
       ),
     );
+  }
+
+  List<Asset> images = <Asset>[];
+
+  Future<void> loadAssets() async {
+    List<Asset> resultList = <Asset>[];
+    String error = 'No Error Detected';
+
+    try {
+      resultList = await MultipleImagesPicker.pickImages(
+        maxImages: 300,
+        enableCamera: true,
+        selectedAssets: images,
+        cupertinoOptions: CupertinoOptions(takePhotoIcon: "chat"),
+        materialOptions: MaterialOptions(
+          actionBarColor: "#abcdef",
+          actionBarTitle: "Example App",
+          allViewTitle: "All Photos",
+          useDetailsView: false,
+          selectCircleStrokeColor: "#000000",
+        ),
+      );
+    } on Exception catch (e) {
+      error = e.toString();
+    }
+
+    // If the widget was removed from the tree while the asynchronous platform
+    // message was in flight, we want to discard the reply rather than calling
+    // setState to update our non-existent appearance.
+    if (!mounted) return;
+
+    setState(() {
+      images = resultList;
+      // _error = error;
+    });
   }
 }

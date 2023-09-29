@@ -304,7 +304,8 @@ float* 로 return 하면
 ## 2023.09.29
 * 오늘은 반대로 안드로이드에서 디버깅 시도-> 일단, 안드로이드에서는 디버깅 성공.
 * 다시 IOS에서 디버깅 시도 -> 성공
-* #
+ ```
+#
 # To learn more about a Podspec see http://guides.cocoapods.org/syntax/podspec.html.
 # Run `pod lib lint flutter_camera_calibration.podspec` to validate before publishing.
 #
@@ -351,4 +352,6 @@ s.library               = 'c++'
 # module_map is needed so this module can be used as a framework
 s.module_map = 'flutter_camera_calibration.modulemap'
 end
+ ```
 
+* 이 플러그인 작업하고 초기 버전만 배포하고 당분간은 dart언어하고 flutter + 파이어베이스로 프로젝트하는것에 집중하자. 
