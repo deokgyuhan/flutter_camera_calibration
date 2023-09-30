@@ -1,7 +1,7 @@
 name: flutter_camera_calibration
-description: A new Flutter FFI plugin project.
+description: flutter_camera_calibration plugin
 version: 0.0.1
-homepage:
+homepage: https://github.com/deokgyuhan/flutter_camera_calibration
 
 environment:
   sdk: '>=3.2.0-8.0.dev <4.0.0'
