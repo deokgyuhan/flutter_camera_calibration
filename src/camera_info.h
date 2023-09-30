@@ -9,5 +9,4 @@ struct Camera_Info {
 };
 
 typedef Camera_Info* Camera_InfoPtr;
-
 #endif // CAMERA_INFO_DEFINED
