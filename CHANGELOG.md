@@ -1,3 +1,7 @@
+## 0.0.4
+
+* Modify Example
+ 
 ## 0.0.3
 
 * Add README.md 
