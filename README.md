@@ -87,7 +87,7 @@ print(matrix);
 
 ## - Reference -
 
-* Source: Translated from the official OpenCV documentation.
+* the official OpenCV documentation.
 
 | Camera Calibration Theory                            | 
 |------------------------------------------------------|
