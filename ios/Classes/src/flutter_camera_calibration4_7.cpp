@@ -1,7 +1,5 @@
-//opencv 4.3.0
+//opencv 4.7.0
 #include "flutter_camera_calibration.h"
-#include "common.h"
-
 #include <iostream>
 #include <sstream>
 #include <string>
@@ -15,6 +13,10 @@
 #include <opencv2/imgcodecs.hpp>
 #include <opencv2/videoio.hpp>
 #include <opencv2/highgui.hpp>
+#include <opencv2/objdetect/charuco_detector.hpp>
+
+#include "common.h"
+/*#include "camera_info.h"*/
 
 using namespace cv;
 using namespace std;
@@ -23,7 +25,7 @@ class Settings
 {
 public:
     Settings() : goodInput(false) {}
-    enum Pattern { NOT_EXISTING, CHESSBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };
+    enum Pattern { NOT_EXISTING, CHESSBOARD, CHARUCOBOARD, CIRCLES_GRID, ASYMMETRIC_CIRCLES_GRID };
     enum InputType { INVALID, CAMERA, VIDEO_FILE, IMAGE_LIST };
 
     void write(FileStorage& fs) const                        //Write serialization for this class
@@ -32,7 +34,10 @@ public:
                   << "BoardSize_Width"  << boardSize.width
                   << "BoardSize_Height" << boardSize.height
                   << "Square_Size"         << squareSize
+                  << "Marker_Size"      << markerSize
                   << "Calibrate_Pattern" << patternToUse
+                  << "ArUco_Dict_Name"   << arucoDictName
+                  << "ArUco_Dict_File_Name" << arucoDictFileName
                   << "Calibrate_NrOfFrameToUse" << nrFrames
                   << "Calibrate_FixAspectRatio" << aspectRatio
                   << "Calibrate_AssumeZeroTangentialDistortion" << calibZeroTangentDist
@@ -47,15 +52,18 @@ public:
 
                   << "Input_FlipAroundHorizontalAxis" << flipVertical
                   << "Input_Delay" << delay
-                  << "Input" << input
+                //   << "Input" << input
            << "}";
     }
     void read(const FileNode& node)                          //Read serialization for this class
     {
-        node["BoardSize_Width" ] >> boardSize.width;
+        node["BoardSize_Width"] >> boardSize.width;
         node["BoardSize_Height"] >> boardSize.height;
         node["Calibrate_Pattern"] >> patternToUse;
-        node["Square_Size"]  >> squareSize;
+        node["ArUco_Dict_Name"] >> arucoDictName;
+        node["ArUco_Dict_File_Name"] >> arucoDictFileName;
+        node["Square_Size"] >> squareSize;
+        node["Marker_Size"] >> markerSize;
         node["Calibrate_NrOfFrameToUse"] >> nrFrames;
         node["Calibrate_FixAspectRatio"] >> aspectRatio;
         node["Write_DetectedFeaturePoints"] >> writePoints;
@@ -67,7 +75,7 @@ public:
         node["Calibrate_UseFisheyeModel"] >> useFisheye;
         node["Input_FlipAroundHorizontalAxis"] >> flipVertical;
         node["Show_UndistortedImage"] >> showUndistorted;
-        node["Input"] >> input;
+        // node["Input"] >> input;
         node["Input_Delay"] >> delay;
         node["Fix_K1"] >> fixK1;
         node["Fix_K2"] >> fixK2;
@@ -77,6 +85,7 @@ public:
 
         validate();
     }
+
     void validate()
     {
         goodInput = true;
@@ -96,38 +105,38 @@ public:
             goodInput = false;
         }
 
-//        if (input.empty())      // Check for valid input
-//                inputType = INVALID;
-//        else
-//        {
-//            if (input[0] >= '0' && input[0] <= '9')
-//            {
-//                stringstream ss(input);
-//                ss >> cameraID;
-//                inputType = CAMERA;
-//            }
-//            else
-//            {
-//                if (isListOfImages(input) && readStringList(input, imageList))
-//                {
-//                    inputType = IMAGE_LIST;
-//                    nrFrames = (nrFrames < (int)imageList.size()) ? nrFrames : (int)imageList.size();
-//                }
-//                else
-//                    inputType = VIDEO_FILE;
-//            }
-//            if (inputType == CAMERA)
-//                inputCapture.open(cameraID);
-//            if (inputType == VIDEO_FILE)
-//                inputCapture.open(input);
-//            if (inputType != IMAGE_LIST && !inputCapture.isOpened())
-//                    inputType = INVALID;
-//        }
-//        if (inputType == INVALID)
-//        {
-//            cerr << " Input does not exist: " << input;
-//            goodInput = false;
-//        }
+        // if (input.empty())      // Check for valid input
+        //         inputType = INVALID;
+        // else
+        // {
+        //     if (input[0] >= '0' && input[0] <= '9')
+        //     {
+        //         stringstream ss(input);
+        //         ss >> cameraID;
+        //         inputType = CAMERA;
+        //     }
+        //     else
+        //     {
+        //         if (isListOfImages(input) && readStringList(input, imageList))
+        //         {
+        //             inputType = IMAGE_LIST;
+        //             nrFrames = (nrFrames < (int)imageList.size()) ? nrFrames : (int)imageList.size();
+        //         }
+        //         else
+        //             inputType = VIDEO_FILE;
+        //     }
+        //     if (inputType == CAMERA)
+        //         inputCapture.open(cameraID);
+        //     if (inputType == VIDEO_FILE)
+        //         inputCapture.open(input);
+        //     if (inputType != IMAGE_LIST && !inputCapture.isOpened())
+        //             inputType = INVALID;
+        // }
+        // if (inputType == INVALID)
+        // {
+        //     cerr << " Input does not exist: " << input;
+        //     goodInput = false;
+        // }
 
         flag = 0;
         if(calibFixPrincipalPoint) flag |= CALIB_FIX_PRINCIPAL_POINT;
@@ -151,6 +160,7 @@ public:
 
         calibrationPattern = NOT_EXISTING;
         if (!patternToUse.compare("CHESSBOARD")) calibrationPattern = CHESSBOARD;
+        if (!patternToUse.compare("CHARUCOBOARD")) calibrationPattern = CHARUCOBOARD;
         if (!patternToUse.compare("CIRCLES_GRID")) calibrationPattern = CIRCLES_GRID;
         if (!patternToUse.compare("ASYMMETRIC_CIRCLES_GRID")) calibrationPattern = ASYMMETRIC_CIRCLES_GRID;
         if (calibrationPattern == NOT_EXISTING)
@@ -202,20 +212,23 @@ public:
     }
 
     // 이미지 목록 설정 멤버 함수
-        void setImageList(const vector<string>& imageList) {
+    void setImageList(const vector<string>& imageList) {
 
-           for(int i = 0; i < imageList.size(); i++) {
-            cout << "imageList[" << i << "]=" << imageList[i] << endl;
-           }
-           this->inputType = IMAGE_LIST;
-           this->imageList = imageList;
-           nrFrames = (nrFrames < static_cast<int>(imageList.size())) ? nrFrames : static_cast<int>(imageList.size());
-        }
+       for(int i = 0; i < imageList.size(); i++) {
+        cout << "imageList[" << i << "]=" << imageList[i] << endl;
+       }
+       this->inputType = IMAGE_LIST;
+       this->imageList = imageList;
+       nrFrames = (nrFrames < static_cast<int>(imageList.size())) ? nrFrames : static_cast<int>(imageList.size());
+    }
 
 public:
-    Size boardSize;              // The size of the board -> Number of items by width and height
-    Pattern calibrationPattern;  // One of the Chessboard, circles, or asymmetric circle pattern
+    cv::Size boardSize;              // The size of the board -> Number of items by width and height
+    Pattern calibrationPattern;  // One of the Chessboard, ChArUco board, circles, or asymmetric circle pattern
     float squareSize;            // The size of a square in your defined unit (point, millimeter,etc).
+    float markerSize;            // The size of a marker in your defined unit (point, millimeter,etc).
+    string arucoDictName;        // The Name of ArUco dictionary which you use in ChArUco pattern
+    string arucoDictFileName;    // The Name of file which contains ArUco dictionary for ChArUco pattern
     int nrFrames;                // The number of frames to use from the input for calibration
     float aspectRatio;           // The aspect ratio
     int delay;                   // In case of a video input
@@ -259,8 +272,9 @@ static inline void read(const FileNode& node, Settings& x, const Settings& defau
 
 enum { DETECTION = 0, CAPTURING = 1, CALIBRATED = 2 };
 
-bool runCalibrationAndSave(Settings& s, Size imageSize, Mat&  cameraMatrix, Mat& distCoeffs,
+bool runCalibrationAndSave(Settings& s, cv::Size imageSize, Mat&  cameraMatrix, Mat& distCoeffs,
                            vector<vector<Point2f> > imagePoints, float grid_width, bool release_object);
+
 
 //! [compute_errors]
 static double computeReprojectionErrors( const vector<vector<Point3f> >& objectPoints,
@@ -297,7 +311,7 @@ static double computeReprojectionErrors( const vector<vector<Point3f> >& objectP
 }
 //! [compute_errors]
 //! [board_corners]
-static void calcBoardCornerPositions(Size boardSize, float squareSize, vector<Point3f>& corners,
+static void calcBoardCornerPositions(cv::Size boardSize, float squareSize, vector<Point3f>& corners,
                                      Settings::Pattern patternType /*= Settings::CHESSBOARD*/)
 {
     corners.clear();
@@ -306,22 +320,32 @@ static void calcBoardCornerPositions(Size boardSize, float squareSize, vector<Po
     {
     case Settings::CHESSBOARD:
     case Settings::CIRCLES_GRID:
-        for( int i = 0; i < boardSize.height; ++i )
-            for( int j = 0; j < boardSize.width; ++j )
+        for (int i = 0; i < boardSize.height; ++i) {
+            for (int j = 0; j < boardSize.width; ++j) {
                 corners.push_back(Point3f(j*squareSize, i*squareSize, 0));
+            }
+        }
         break;
-
+    case Settings::CHARUCOBOARD:
+        for (int i = 0; i < boardSize.height - 1; ++i) {
+            for (int j = 0; j < boardSize.width - 1; ++j) {
+                corners.push_back(Point3f(j*squareSize, i*squareSize, 0));
+            }
+        }
+        break;
     case Settings::ASYMMETRIC_CIRCLES_GRID:
-        for( int i = 0; i < boardSize.height; i++ )
-            for( int j = 0; j < boardSize.width; j++ )
-                corners.push_back(Point3f((2*j + i % 2)*squareSize, i*squareSize, 0));
+        for (int i = 0; i < boardSize.height; i++) {
+            for (int j = 0; j < boardSize.width; j++) {
+                corners.push_back(Point3f((2 * j + i % 2)*squareSize, i*squareSize, 0));
+            }
+        }
         break;
     default:
         break;
     }
 }
 //! [board_corners]
-static bool runCalibration( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,
+static bool runCalibration( Settings& s, cv::Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,
                             vector<vector<Point2f> > imagePoints, vector<Mat>& rvecs, vector<Mat>& tvecs,
                             vector<float>& reprojErrs,  double& totalAvgErr, vector<Point3f>& newObjPoints,
                             float grid_width, bool release_object)
@@ -339,7 +363,12 @@ static bool runCalibration( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat
 
     vector<vector<Point3f> > objectPoints(1);
     calcBoardCornerPositions(s.boardSize, s.squareSize, objectPoints[0], s.calibrationPattern);
-    objectPoints[0][s.boardSize.width - 1].x = objectPoints[0][0].x + grid_width;
+    if (s.calibrationPattern == Settings::Pattern::CHARUCOBOARD) {
+        objectPoints[0][s.boardSize.width - 2].x = objectPoints[0][0].x + grid_width;
+    }
+    else {
+        objectPoints[0][s.boardSize.width - 1].x = objectPoints[0][0].x + grid_width;
+    }
     newObjPoints = objectPoints[0];
 
     objectPoints.resize(imagePoints.size(),objectPoints[0]);
@@ -388,7 +417,7 @@ static bool runCalibration( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat
 }
 
 // Print camera parameters to the output file
-static void saveCameraParams( Settings& s, Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,
+static void saveCameraParams( Settings& s, cv::Size& imageSize, Mat& cameraMatrix, Mat& distCoeffs,
                               const vector<Mat>& rvecs, const vector<Mat>& tvecs,
                               const vector<float>& reprojErrs, const vector<vector<Point2f> >& imagePoints,
                               double totalAvgErr, const vector<Point3f>& newObjPoints )
@@ -410,6 +439,7 @@ static void saveCameraParams( Settings& s, Size& imageSize, Mat& cameraMatrix, M
     fs << "board_width" << s.boardSize.width;
     fs << "board_height" << s.boardSize.height;
     fs << "square_size" << s.squareSize;
+    fs << "marker_size" << s.markerSize;
 
     if( !s.useFisheye && s.flag & CALIB_FIX_ASPECT_RATIO )
         fs << "fix_aspect_ratio" << s.aspectRatio;
@@ -506,7 +536,7 @@ static void saveCameraParams( Settings& s, Size& imageSize, Mat& cameraMatrix, M
 }
 
 //! [run_and_save]
-bool runCalibrationAndSave(Settings& s, Size imageSize, Mat& cameraMatrix, Mat& distCoeffs,
+bool runCalibrationAndSave(Settings& s, cv::Size imageSize, Mat& cameraMatrix, Mat& distCoeffs,
                            vector<vector<Point2f> > imagePoints, float grid_width, bool release_object)
 {
     vector<Mat> rvecs, tvecs;
@@ -532,7 +562,7 @@ bool runCalibrationAndSave(Settings& s, Size imageSize, Mat& cameraMatrix, Mat& 
 
 extern "C"
 {
-    FUNCTION_ATTRIBUTE
+ FUNCTION_ATTRIBUTE
     const char* opencvVersion()
     {
         return CV_VERSION;
@@ -541,9 +571,12 @@ extern "C"
     FUNCTION_ATTRIBUTE
     const Camera_InfoPtr camera_calibrate(int argc, char* argv[], char* filelist[])
     {
+    cout << "argc: " << argc << endl;
+    cout << "argv: " << argv[1] << endl;
+
     const String keys
         = "{help h usage ? |           | print this message            }"
-          "{@settings      |default.xml| input setting file            }"
+          "{@settings      | | input setting file            }"
           "{d              |           | actual distance between top-left and top-right corners of "
           "the calibration grid }"
           "{winSize        | 11        | Half of search window for cornerSubPix }";
@@ -554,27 +587,42 @@ extern "C"
                  "how to edit it. It may be any OpenCV supported file format XML/YAML.");
     if (!parser.check()) {
         parser.printErrors();
-        return 0;
+        return nullptr;
     }
 
     if (parser.has("help")) {
         parser.printMessage();
-        return 0;
+        return nullptr;
     }
+//const char* filelist[] = {
+//"../img/left01.jpg",
+//"../img/left02.jpg",
+//"../img/left03.jpg",
+//"../img/left04.jpg",
+//"../img/left05.jpg",
+//"../img/left06.jpg",
+//"../img/left07.jpg",
+//"../img/left08.jpg"
+//};
 
-    int numFiles = sizeof(filelist) / sizeof(filelist[0]);
+int numFiles = sizeof(filelist) / sizeof(filelist[0]);
 
-    // 변환된 string들을 저장할 vector
-    vector<string> customImageList;
+// 변환된 string들을 저장할 vector
+vector<string> customImageList;
 
-    // char* 배열을 vector<string>으로 변환
-    for (int i = 0; i < numFiles; i++) {
-        customImageList.push_back(string(filelist[i]));
-    }
+// char* 배열을 vector<string>으로 변환
+for (int i = 0; i < numFiles; i++) {
+    customImageList.push_back(string(filelist[i]));
+}
 
-    //! [file_read]
+
+
     Settings s;
+    s.setImageList(customImageList);
+
     const string inputSettingsFile = parser.get<string>(0);
+
+    cout << "inputSettingsFile: " << inputSettingsFile << endl;
 
     FileStorage fs(inputSettingsFile, FileStorage::READ); // Read the settings
     if (!fs.isOpened())
@@ -587,9 +635,6 @@ extern "C"
     fs.release();                                         // close Settings file
     //! [file_read]
 
-    //FileStorage fout("settings.yml", FileStorage::WRITE); // write config as YAML
-    //fout << "Settings" << s;
-
     if (!s.goodInput)
     {
         cout << "Invalid input detected. Application stopping. " << endl;
@@ -599,21 +644,72 @@ extern "C"
     int winSize = parser.get<int>("winSize");
 
     float grid_width = s.squareSize * (s.boardSize.width - 1);
+    if (s.calibrationPattern == Settings::Pattern::CHARUCOBOARD) {
+        grid_width = s.squareSize * (s.boardSize.width - 2);
+    }
+
     bool release_object = false;
     if (parser.has("d")) {
         grid_width = parser.get<float>("d");
         release_object = true;
     }
 
+    //create CharucoBoard
+    cv::aruco::Dictionary dictionary;
+    if (s.calibrationPattern == Settings::CHARUCOBOARD) {
+        if (s.arucoDictFileName == "") {
+            cv::aruco::PredefinedDictionaryType arucoDict;
+            if (s.arucoDictName == "DICT_4X4_50") { arucoDict = cv::aruco::DICT_4X4_50; }
+            else if (s.arucoDictName == "DICT_4X4_100") { arucoDict = cv::aruco::DICT_4X4_100; }
+            else if (s.arucoDictName == "DICT_4X4_250") { arucoDict = cv::aruco::DICT_4X4_250; }
+            else if (s.arucoDictName == "DICT_4X4_1000") { arucoDict = cv::aruco::DICT_4X4_1000; }
+            else if (s.arucoDictName == "DICT_5X5_50") { arucoDict = cv::aruco::DICT_5X5_50; }
+            else if (s.arucoDictName == "DICT_5X5_100") { arucoDict = cv::aruco::DICT_5X5_100; }
+            else if (s.arucoDictName == "DICT_5X5_250") { arucoDict = cv::aruco::DICT_5X5_250; }
+            else if (s.arucoDictName == "DICT_5X5_1000") { arucoDict = cv::aruco::DICT_5X5_1000; }
+            else if (s.arucoDictName == "DICT_6X6_50") { arucoDict = cv::aruco::DICT_6X6_50; }
+            else if (s.arucoDictName == "DICT_6X6_100") { arucoDict = cv::aruco::DICT_6X6_100; }
+            else if (s.arucoDictName == "DICT_6X6_250") { arucoDict = cv::aruco::DICT_6X6_250; }
+            else if (s.arucoDictName == "DICT_6X6_1000") { arucoDict = cv::aruco::DICT_6X6_1000; }
+            else if (s.arucoDictName == "DICT_7X7_50") { arucoDict = cv::aruco::DICT_7X7_50; }
+            else if (s.arucoDictName == "DICT_7X7_100") { arucoDict = cv::aruco::DICT_7X7_100; }
+            else if (s.arucoDictName == "DICT_7X7_250") { arucoDict = cv::aruco::DICT_7X7_250; }
+            else if (s.arucoDictName == "DICT_7X7_1000") { arucoDict = cv::aruco::DICT_7X7_1000; }
+            else if (s.arucoDictName == "DICT_ARUCO_ORIGINAL") { arucoDict = cv::aruco::DICT_ARUCO_ORIGINAL; }
+            else if (s.arucoDictName == "DICT_APRILTAG_16h5") { arucoDict = cv::aruco::DICT_APRILTAG_16h5; }
+            else if (s.arucoDictName == "DICT_APRILTAG_25h9") { arucoDict = cv::aruco::DICT_APRILTAG_25h9; }
+            else if (s.arucoDictName == "DICT_APRILTAG_36h10") { arucoDict = cv::aruco::DICT_APRILTAG_36h10; }
+            else if (s.arucoDictName == "DICT_APRILTAG_36h11") { arucoDict = cv::aruco::DICT_APRILTAG_36h11; }
+            else {
+                cout << "incorrect name of aruco dictionary \n";
+                return nullptr;
+            }
+
+            dictionary = cv::aruco::getPredefinedDictionary(arucoDict);
+        }
+        else {
+            cv::FileStorage dict_file(s.arucoDictFileName, cv::FileStorage::Mode::READ);
+            cv::FileNode fn(dict_file.root());
+            dictionary.readDictionary(fn);
+        }
+    }
+    else {
+        // default dictionary
+        dictionary = cv::aruco::getPredefinedDictionary(0);
+    }
+    cv::aruco::CharucoBoard ch_board({s.boardSize.width, s.boardSize.height}, s.squareSize, s.markerSize, dictionary);
+    cv::aruco::CharucoDetector ch_detector(ch_board);
+    std::vector<int> markerIds;
+
     vector<vector<Point2f> > imagePoints;
     Mat cameraMatrix, distCoeffs;
-    Size imageSize;
+    cv::Size imageSize;
     int mode = s.inputType == Settings::IMAGE_LIST ? CAPTURING : DETECTION;
     clock_t prevTimestamp = 0;
     const Scalar RED(0,0,255), GREEN(0,255,0);
     const char ESC_KEY = 27;
-
     //! [get_input]
+
     for(;;)
     {
         Mat view;
@@ -660,6 +756,10 @@ extern "C"
         case Settings::CHESSBOARD:
             found = findChessboardCorners( view, s.boardSize, pointBuf, chessBoardFlags);
             break;
+        case Settings::CHARUCOBOARD:
+            ch_detector.detectBoard( view, pointBuf, markerIds);
+            found = pointBuf.size() == (size_t)((s.boardSize.height - 1)*(s.boardSize.width - 1));
+            break;
         case Settings::CIRCLES_GRID:
             found = findCirclesGrid( view, s.boardSize, pointBuf );
             break;
@@ -671,16 +771,17 @@ extern "C"
             break;
         }
         //! [find_pattern]
+
         //! [pattern_found]
-        if ( found)                // If done with success,
+        if (found)                // If done with success,
         {
               // improve the found corners' coordinate accuracy for chessboard
                 if( s.calibrationPattern == Settings::CHESSBOARD)
                 {
                     Mat viewGray;
                     cvtColor(view, viewGray, COLOR_BGR2GRAY);
-                    cornerSubPix( viewGray, pointBuf, Size(winSize,winSize),
-                        Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.0001 ));
+                    cornerSubPix( viewGray, pointBuf, cv::Size(winSize,winSize),
+                        cv::Size(-1,-1), TermCriteria( TermCriteria::EPS+TermCriteria::COUNT, 30, 0.0001 ));
                 }
 
                 if( mode == CAPTURING &&  // For camera only take new samples after delay time
@@ -692,7 +793,10 @@ extern "C"
                 }
 
                 // Draw the corners.
-                drawChessboardCorners( view, s.boardSize, Mat(pointBuf), found );
+                if(s.calibrationPattern == Settings::CHARUCOBOARD)
+                    drawChessboardCorners( view, cv::Size(s.boardSize.width-1, s.boardSize.height-1), Mat(pointBuf), found );
+                else
+                    drawChessboardCorners( view, s.boardSize, Mat(pointBuf), found );
         }
         //! [pattern_found]
         //----------------------------- Output Text ------------------------------------------------
@@ -700,8 +804,8 @@ extern "C"
         string msg = (mode == CAPTURING) ? "100/100" :
                       mode == CALIBRATED ? "Calibrated" : "Press 'g' to start";
         int baseLine = 0;
-        Size textSize = getTextSize(msg, 1, 1, 1, &baseLine);
-        Point textOrigin(view.cols - 2*textSize.width - 10, view.rows - 2*baseLine - 10);
+        cv::Size textSize = getTextSize(msg, 1, 1, 1, &baseLine);
+        cv::Point textOrigin(view.cols - 2*textSize.width - 10, view.rows - 2*baseLine - 10);
 
         if( mode == CAPTURING )
         {
@@ -734,20 +838,20 @@ extern "C"
         //! [output_undistorted]
         //------------------------------ Show image and check for input commands -------------------
         //! [await_input]
-//        imshow("Image View", view);
-//        char key = (char)waitKey(s.inputCapture.isOpened() ? 50 : s.delay);
-//
-//        if( key  == ESC_KEY )
-//            break;
-//
-//        if( key == 'u' && mode == CALIBRATED )
-//           s.showUndistorted = !s.showUndistorted;
-//
-//        if( s.inputCapture.isOpened() && key == 'g' )
-//        {
-//            mode = CAPTURING;
-//            imagePoints.clear();
-//        }
+        // imshow("Image View", view);
+        // char key = (char)waitKey(s.inputCapture.isOpened() ? 50 : s.delay);
+
+        // if( key  == ESC_KEY )
+        //     break;
+
+        // if( key == 'u' && mode == CALIBRATED )
+        //    s.showUndistorted = !s.showUndistorted;
+
+        // if( s.inputCapture.isOpened() && key == 'g' )
+        // {
+        //     mode = CAPTURING;
+        //     imagePoints.clear();
+        // }
         //! [await_input]
     }
 
@@ -779,15 +883,15 @@ extern "C"
             if(view.empty())
                 continue;
             remap(view, rview, map1, map2, INTER_LINEAR);
-//            imshow("Image View", rview);
-//            char c = (char)waitKey();
-//            if( c  == ESC_KEY || c == 'q' || c == 'Q' )
-//                break;
+            // imshow("Image View", rview);
+            // char c = (char)waitKey();
+            // if( c  == ESC_KEY || c == 'q' || c == 'Q' )
+            //     break;
         }
     }
     //! [show_results]
 
-cout << "test->" << cameraMatrix << endl;
+    cout << "test->" << cameraMatrix << endl;
     cout << "test->size: " << cameraMatrix.size << endl;
     cout << "test->rows: " << cameraMatrix.rows << endl;
     cout << "test->cols: " << cameraMatrix.cols << endl;
