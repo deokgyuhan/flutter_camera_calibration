@@ -24,7 +24,7 @@ final FlutterCameraCalibrationBindings _bindings = FlutterCameraCalibrationBindi
 
 String opencvVersion() => _bindings.opencvVersion().cast<Utf8>().toDartString();
 
-Future<CameraInfoResult> camera_calibrate(String filePath, List<String> images) async {
+Future<CameraInfoResult> cameraCalibrate(String filePath, List<String> images) async {
   final List<Pointer<Utf8>> imagePaths = [];
 
     for (final path in images) {
@@ -117,7 +117,7 @@ class CameraIntrincMatrix {
 
   @override
   String toString() {
-    final columnWidth = 12; // 각 열의 고정된 너비
+    const columnWidth = 12; // 각 열의 고정된 너비
 
     StringBuffer buffer = StringBuffer();
     for (int i = 0; i < rows; i++) {

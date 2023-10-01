@@ -77,7 +77,7 @@ class _MyAppState extends State<MyApp> {
                       }
                     }
 
-                    final calibration_result = await flutter_camera_calibration.camera_calibrate(full_path, imagePaths);
+                    final calibration_result = await flutter_camera_calibration.cameraCalibrate(full_path, imagePaths);
 
                     // 결과 사용
                     print('------------------------------------------------------------------------->');
