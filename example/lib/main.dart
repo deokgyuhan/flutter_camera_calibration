@@ -32,7 +32,8 @@ class _MyAppState extends State<MyApp> {
     const spacerSmall = SizedBox(height: 10);
     return Scaffold(
         appBar: AppBar(
-          title: const Text('flutter_camerea_calibration example'),
+          title: const Text('flutter_camerea_calibration example'
+        ),
         ),
         body: SingleChildScrollView(
           child: Container(
@@ -96,7 +97,9 @@ class _MyAppState extends State<MyApp> {
                       context: context,
                       builder: (BuildContext context) {
                         return AlertDialog(
-                          title: Text("Camera Calibration Matrix"),
+                          title: Text("Camera Calibration Result \n\nCamera Intrinsic Parameters Matrix",
+                            style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                          ),
                           content: Container(
                             width: 400,
                             height: 300,
@@ -107,7 +110,7 @@ class _MyAppState extends State<MyApp> {
                               onPressed: () {
                                 Navigator.of(context).pop();
                               },
-                              child: Text("닫기"),
+                              child: Text("Close"),
                             ),
                           ],
                         );
@@ -135,22 +138,21 @@ class MatrixWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return GridView.builder(
       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-        crossAxisCount: matrix.cols, // 열의 수를 매트릭스의 열 수와 일치시킵니다.
+        crossAxisCount: matrix.cols,
       ),
       itemBuilder: (context, index) {
-        final row = index ~/ matrix.cols; // 요소의 행 인덱스 계산
-        final col = index % matrix.cols; // 요소의 열 인덱스 계산
+        final row = index ~/ matrix.cols;
+        final col = index % matrix.cols;
         final value = matrix.get(row, col);
 
-        // 요소를 Text 위젯으로 표시
         return Center(
           child: Text(
-            value.toStringAsFixed(2), // 소수점 두 자리까지 표시
+            value.toStringAsFixed(2),
             style: TextStyle(fontSize: 18.0),
           ),
         );
       },
-      itemCount: matrix.rows * matrix.cols, // 전체 요소 수
+      itemCount: matrix.rows * matrix.cols,
     );
   }
 }
