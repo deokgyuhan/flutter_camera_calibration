@@ -21,6 +21,9 @@
   https://github.com/deokgyuhan/flutter_camera_calibration/tree/master/ScreenShots/data
 
 
+* Furthermore, please be aware that testing is not supported in the simulator when running the examples, and you should test them on an actual device.
+
+
 ## 2. Screenshots
 
 

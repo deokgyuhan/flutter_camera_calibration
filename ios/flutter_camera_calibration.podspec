@@ -4,7 +4,7 @@
 #
 Pod::Spec.new do |s|
   s.name             = 'flutter_camera_calibration'
-  s.version          = '0.0.4'
+  s.version          = '0.0.5'
   s.summary          = 'A new Flutter FFI plugin project.'
   s.description      = <<-DESC
 
