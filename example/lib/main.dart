@@ -115,7 +115,7 @@ class _MyAppState extends State<MyApp> {
                     );
 
                   },
-                  child: Text("카메라 캘리브레이션"),
+                  child: Text("Run Camera Calibration"),
                 )
                 ),
               ],
