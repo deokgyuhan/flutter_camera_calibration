@@ -62,7 +62,7 @@ Future<CameraInfoResult> camera_calibrate(String filePath, List<String> images) 
   calloc.free(fileListOfPointerArray);
   calloc.free(argPointerArray);
 
-  return await _convertCameraInfoPointer(resultPtr);
+  return  _convertCameraInfoPointer(resultPtr);
 }
 
 CameraInfoResult _convertCameraInfoPointer(Pointer<Camera_Info> cameraInfoPtr) {
