@@ -28,8 +28,9 @@ Future<CameraInfoResult> cameraCalibrate(String filePath, List<String> images) a
   final List<Pointer<Utf8>> imagePaths = [];
 
     for (final path in images) {
-      final imagePath = path.toNativeUtf8() ?? "none".toNativeUtf8();
+      // final imagePath = path.toNativeUtf8() ?? "none".toNativeUtf8();
      // print("-----------"+imagePath.toString());
+      final imagePath = path.toNativeUtf8();
       imagePaths.add(imagePath);
     }
 
