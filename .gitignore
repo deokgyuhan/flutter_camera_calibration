@@ -31,4 +31,4 @@ build/
 /download/
 #/src/include/
 #/android/src/main/jniLibs/
-/ios/opencv2.framework/
+#/ios/opencv2.framework/
